@@ -1,0 +1,12 @@
+name: SimpleSeq2Seq
+dependencies:
+    - python==3.5.3
+    - numpy
+    - notebook
+    - pip:
+        - chainer==1.23.0
+        - matplotlib==2.1.0
+        - pillow==4.1.0
+        - gensim==3.0.1
+        - nltk==3.2.5
+        - h5py

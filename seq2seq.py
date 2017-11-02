@@ -32,11 +32,9 @@ class Encoder(chainer.Chain):
         self.batch_size = batch_size
 
     def __call__(self, x, c_pre, h_pre, train=True):
+        # TODO
         e = F.tanh(self.xe(x))
-        c_tmp, h_tmp = F.lstm(c_pre, self.eh(e) + self.hh(h_pre))
-        enable = chainer.Variable(chainer.Variable(x.data != -1).data.reshape(len(x), 1))    # calculate flg whether x is -1 or not
-        c_next = F.where(enable, c_tmp, c_pre)                                   # if x!=-1, c_tmp . elseif x=-1, c_pre.
-        h_next = F.where(enable, h_tmp, h_pre)                                   # if x!=-1, h_tmp . elseif x=-1, h_pre.
+        c_next, h_next = F.lstm(c_pre, self.eh(e) + self.hh(h_pre))
         return c_next, h_next
 
 
@@ -51,13 +49,12 @@ class Decoder(chainer.Chain):
         )
 
     def __call__(self, y, c_pre, h_pre):
+        # TODO
         e = F.tanh(self.ye(y))
-        c_tmp, h_tmp = F.lstm(c_pre, self.eh(e) + self.hh(h_pre))
-        enable = chainer.Variable(chainer.Variable(y.data != -1).data.reshape(len(y), 1))
-        c_next = F.where(enable, c_tmp, c_pre)
-        h_next = F.where(enable, h_tmp, h_pre)
-        f = F.tanh(self.hf(h_next))
-        return self.fy(f), c_next, h_next
+        c_next, h_next = F.lstm(c_pre, self.hh(h_pre) + self.eh(e))
+        y_out = F.tanh(self.hf(h_next))
+        y_out = self.fy(y_out)
+        return y_out, c_next, h_next
 
 
 class Seq2Seq(chainer.Chain):
@@ -160,4 +157,3 @@ class Seq2Seq(chainer.Chain):
                 break
             sentence = sentence + word + " "
         return sentence
-
